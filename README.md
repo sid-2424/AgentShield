@@ -1,48 +1,109 @@
 # AgentShield
 
-> Runtime security middleware for AI agents.
-
-AgentShield intercepts AI-generated tool calls before execution and evaluates them using deterministic security policies.
-
-Instead of trusting an LLM to determine whether an action is safe, AgentShield validates every operation before it reaches your database, filesystem, APIs, or shell.
-
----
+> Runtime security middleware for AI agents that enforces deterministic policies before privileged tool execution.
 
 ## Features
 
-- Runtime policy engine
-- Prompt injection mitigation
-- Tool allowlists
-- Human approval workflows
-- Framework agnostic
-- Zero runtime dependencies
+- ✅ Tool allowlists
+- ✅ Human approval workflows
+- ✅ Prompt injection protection
+- ✅ Path traversal detection
+- ✅ SSRF protection
+- ✅ Lightweight TypeScript API
 
 ---
 
-## Example
+## Installation
+
+```bash
+npm install agentshield
+```
+
+---
+
+## Quick Start
 
 ```ts
-const shield = new AgentShield(policy);
+import { AgentShield } from "agentshield";
 
-await shield.enforce(toolInvocation, async () => {
-    return executeTool();
+const shield = new AgentShield({
+  allowedTools: ["readFile", "writeFile"],
+  requireApproval: ["writeFile"]
 });
+
+await shield.enforce(
+  {
+    tool: "writeFile",
+    provenance: "SYSTEM",
+    args: {
+      path: "notes.txt",
+      content: "Hello"
+    }
+  },
+  async () => {
+    console.log("Writing...");
+  },
+  async () => true
+);
+```
+
+---
+
+## Supported Security Rules
+
+| Rule | Status |
+|------|--------|
+| Tool Allowlist | ✅ |
+| Human Approval | ✅ |
+| Destructive Keyword Detection | ✅ |
+| Path Traversal Detection | ✅ |
+| SSRF Detection | ✅ |
+
+---
+
+## Why AgentShield?
+
+LLMs are excellent at reasoning, but they should not be trusted to decide whether privileged actions are safe.
+
+AgentShield sits between an AI agent and its tools, applying deterministic security policies before execution.
+
+```
+LLM
+ │
+ ▼
+AgentShield
+ │
+ ▼
+Policy Engine
+ │
+ ▼
+Security Rules
+ │
+ ▼
+Tool Execution
 ```
 
 ---
 
 ## Roadmap
 
-- [x] Project scaffold
-- [ ] Policy engine
-- [ ] Runtime enforcement
-- [ ] Prompt injection detection
-- [ ] Filesystem protection
-- [ ] Network protection
-- [ ] Audit logging
-- [ ] Unit tests
-- [ ] GitHub Actions
+### v0.2
+
+- Secret detection
+- Audit logging
+- OpenAI Agents SDK integration
+- LangChain integration
 
 ---
 
-MIT License
+## Contributing
+
+Contributions, issues, and feature requests are welcome.
+
+See `CONTRIBUTING.md`.
+
+---
+
+## License
+
+MIT
