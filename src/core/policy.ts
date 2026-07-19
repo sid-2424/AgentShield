@@ -8,7 +8,7 @@ import { Rule } from "../rules/rule.js";
 import { AllowlistRule } from "../rules/allowlist.js";
 import { ApprovalRule } from "../rules/approval.js";
 import { DestructiveKeywordRule } from "../rules/destructive.js";
-
+import { PathTraversalRule } from "../rules/pathTraversal.js";
 export class PolicyEngine {
 
     private readonly rules: Rule[];
@@ -29,6 +29,9 @@ export class PolicyEngine {
 
         ];
 
+        if (policy.blockPathTraversal !== false) {
+        this.rules.push(new PathTraversalRule());
+    }
     }
 
     evaluate(invocation: ToolInvocation): ShieldVerdict {
