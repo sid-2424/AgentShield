@@ -1,0 +1,21 @@
+{
+  "name": "agentshield",
+  "version": "0.1.0",
+  "description": "Runtime security middleware for AI agents",
+  "keywords": [
+    "ai",
+    "llm",
+    "security",
+    "prompt-injection",
+    "agents"
+  ],
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx examples/basic.ts",
+    "test": "node --test"
+  }
+}
