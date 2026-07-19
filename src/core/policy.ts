@@ -1,55 +1,54 @@
-import { SecurityPolicy, ShieldVerdict, ToolInvocation } from "../types.js";
+import {
+    SecurityPolicy,
+    ShieldVerdict,
+    ToolInvocation
+} from "../types.js";
+
+import { Rule } from "../rules/rule.js";
+import { AllowlistRule } from "../rules/allowlist.js";
+import { ApprovalRule } from "../rules/approval.js";
+import { DestructiveKeywordRule } from "../rules/destructive.js";
 
 export class PolicyEngine {
-  constructor(private readonly policy: SecurityPolicy) {}
 
-  evaluate(invocation: ToolInvocation): ShieldVerdict {
-    // Rule 1: Tool allowlist
-    if (!this.policy.allowedTools.includes(invocation.tool)) {
-      return {
-        allowed: false,
-        requiresApproval: false,
-        risk: "HIGH",
-        reason: `Tool '${invocation.tool}' is not permitted.`
-      };
+    private readonly rules: Rule[];
+
+    constructor(policy: SecurityPolicy) {
+
+        this.rules = [
+
+            new AllowlistRule(policy.allowedTools),
+
+            new ApprovalRule(
+                policy.requireApproval ?? []
+            ),
+
+            new DestructiveKeywordRule(
+                policy.destructiveKeywords ?? []
+            )
+
+        ];
+
     }
 
-    // Rule 2: Human approval
-    if (
-      this.policy.requireApproval?.includes(invocation.tool)
-    ) {
-      return {
-        allowed: true,
-        requiresApproval: true,
-        risk: "MEDIUM"
-      };
-    }
+    evaluate(invocation: ToolInvocation): ShieldVerdict {
 
-    // Rule 3: Destructive keyword detection
-    if (
-      invocation.provenance === "UNTRUSTED_USER" &&
-      this.policy.destructiveKeywords?.length
-    ) {
-      const serialized = JSON.stringify(invocation.args).toLowerCase();
+        for (const rule of this.rules) {
 
-      const matched = this.policy.destructiveKeywords.find(keyword =>
-        serialized.includes(keyword.toLowerCase())
-      );
+            const result = rule.evaluate(invocation);
 
-      if (matched) {
+            if (result) {
+                return result;
+            }
+
+        }
+
         return {
-          allowed: false,
-          requiresApproval: false,
-          risk: "HIGH",
-          reason: `Blocked because '${matched}' was detected in untrusted input.`
+            allowed: true,
+            requiresApproval: false,
+            risk: "LOW"
         };
-      }
+
     }
 
-    return {
-      allowed: true,
-      requiresApproval: false,
-      risk: "LOW"
-    };
-  }
 }
