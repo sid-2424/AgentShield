@@ -8,4 +8,6 @@ export interface SecurityPolicy {
   blockOutboundNetwork?: boolean;
 
   blockPathTraversal?: boolean;
+  
+  blockSSRF?: boolean;
 }

@@ -37,4 +37,21 @@ describe("PolicyEngine", () => {
 
     });
 
+    it("blocks localhost requests", () => {
+
+        const engine = new PolicyEngine({
+            allowedTools: ["fetchUrl"]
+        });
+
+        const verdict = engine.evaluate({
+            tool: "fetchUrl",
+            provenance: "UNTRUSTED_USER",
+            args: {
+                url: "http://localhost:8080"
+            }
+        });
+
+        expect(verdict.allowed).toBe(false);
+
+    });
 });

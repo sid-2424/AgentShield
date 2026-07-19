@@ -9,30 +9,36 @@ import { AllowlistRule } from "../rules/allowlist.js";
 import { ApprovalRule } from "../rules/approval.js";
 import { DestructiveKeywordRule } from "../rules/destructive.js";
 import { PathTraversalRule } from "../rules/pathTraversal.js";
+import { SSRFRule } from "../rules/ssrf.js";
+
 export class PolicyEngine {
 
     private readonly rules: Rule[];
 
     constructor(policy: SecurityPolicy) {
 
-        this.rules = [
+    this.rules = [
 
-            new AllowlistRule(policy.allowedTools),
+        new AllowlistRule(policy.allowedTools),
 
-            new ApprovalRule(
-                policy.requireApproval ?? []
-            ),
+        new ApprovalRule(
+            policy.requireApproval ?? []
+        ),
 
-            new DestructiveKeywordRule(
-                policy.destructiveKeywords ?? []
-            )
+        new DestructiveKeywordRule(
+            policy.destructiveKeywords ?? []
+        )
 
-        ];
+    ];
 
-        if (policy.blockPathTraversal !== false) {
+    if (policy.blockPathTraversal !== false) {
         this.rules.push(new PathTraversalRule());
     }
+
+    if (policy.blockSSRF !== false) {
+        this.rules.push(new SSRFRule());
     }
+}
 
     evaluate(invocation: ToolInvocation): ShieldVerdict {
 
