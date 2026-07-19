@@ -19,4 +19,22 @@ describe("PolicyEngine", () => {
 
     });
 
+    it("blocks path traversal", () => {
+
+        const engine = new PolicyEngine({
+            allowedTools: ["readFile"]
+        });
+
+        const verdict = engine.evaluate({
+            tool: "readFile",
+            provenance: "UNTRUSTED_USER",
+            args: {
+                path: "../../etc/passwd"
+            }
+        });
+
+        expect(verdict.allowed).toBe(false);
+
+    });
+
 });
