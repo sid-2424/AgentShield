@@ -117,10 +117,18 @@ Tool Execution
 ### v0.2
 
 - Secret detection
-- Audit logging
 - OpenAI Agents SDK integration
+- Anthropic Claude Code integration
 - LangChain integration
+- Model Context Protocol (MCP) support
 
+### Future
+
+- Custom rule plugins
+- Policy configuration via JSON/YAML
+- OpenTelemetry integration
+- Additional SSRF detection heuristics
+- Semantic prompt injection detection
 ---
 
 ## Contributing
