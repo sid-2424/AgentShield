@@ -1,42 +1,36 @@
-import { PolicyEngine } from "./policy.js";
 import {
   SecurityPolicy,
-  ToolInvocation
+  ToolInvocation,
+  ShieldVerdict,
+  AuditEvent
 } from "../types.js";
 
-export class AgentShield {
-  private engine: PolicyEngine;
+export class PolicyEngine {
+  constructor(private readonly policy: SecurityPolicy) {}
 
-  constructor(policy: SecurityPolicy) {
-    this.engine = new PolicyEngine(policy);
-  }
+  evaluate(invocation: ToolInvocation): ShieldVerdict {
 
-  async enforce<T>(
-    invocation: ToolInvocation,
-    action: () => Promise<T>,
-    approve?: () => Promise<boolean>
-  ): Promise<T> {
+    // Existing evaluation logic
+    let verdict: ShieldVerdict = {
+      allowed: true,
+      requiresApproval: false,
+      risk: "LOW"
+    };
 
-    const verdict = this.engine.evaluate(invocation);
+    // Existing rule evaluation...
+    // (Leave your current rule loop exactly as it is)
 
-    if (!verdict.allowed) {
-      throw new Error(verdict.reason);
-    }
+    // Emit audit event
+    const event: AuditEvent = {
+      timestamp: new Date().toISOString(),
+      tool: invocation.tool,
+      allowed: verdict.allowed,
+      reason: verdict.reason,
+      risk: verdict.risk
+    };
 
-    if (verdict.requiresApproval) {
+    this.policy.auditLogger?.(event);
 
-      if (!approve) {
-        throw new Error("Approval callback not provided.");
-      }
-
-      const accepted = await approve();
-
-      if (!accepted) {
-        throw new Error("Execution rejected.");
-      }
-
-    }
-
-    return action();
+    return verdict;
   }
 }

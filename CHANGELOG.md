@@ -17,3 +17,10 @@ All notable changes to this project will be documented in this file.
 - Unit tests with Vitest
 - GitHub Actions continuous integration
 - Project documentation and contribution guidelines
+
+## [Unreleased]
+
+### Added
+
+- Optional audit logging callback via `SecurityPolicy.auditLogger`.
+- New `AuditEvent` interface for recording policy evaluation results.

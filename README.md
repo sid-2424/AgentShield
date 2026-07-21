@@ -47,6 +47,33 @@ await shield.enforce(
 );
 ```
 
+## Audit Logging
+
+AgentShield can emit an audit event after every policy evaluation.
+
+```ts
+const shield = new AgentShield({
+  allowedTools: ["readFile"],
+  auditLogger: (event) => {
+    console.log(event);
+  }
+});
+```
+
+Example event:
+
+```json
+{
+  "timestamp": "2026-07-21T12:34:56.000Z",
+  "tool": "deleteFile",
+  "allowed": false,
+  "reason": "Tool is not allowlisted",
+  "risk": "HIGH"
+}
+```
+
+This can be integrated with logging systems, monitoring pipelines, or SIEM platforms to audit AI agent activity.
+
 ---
 
 ## Supported Security Rules

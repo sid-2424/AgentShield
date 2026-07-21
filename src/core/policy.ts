@@ -1,7 +1,8 @@
 import {
     SecurityPolicy,
     ShieldVerdict,
-    ToolInvocation
+    ToolInvocation,
+    AuditEvent
 } from "../types.js";
 
 import { Rule } from "../rules/rule.js";
@@ -14,49 +15,65 @@ import { SSRFRule } from "../rules/ssrf.js";
 export class PolicyEngine {
 
     private readonly rules: Rule[];
+    private readonly policy: SecurityPolicy;
 
     constructor(policy: SecurityPolicy) {
 
-    this.rules = [
+        this.policy = policy;
 
-        new AllowlistRule(policy.allowedTools),
+        this.rules = [
 
-        new ApprovalRule(
-            policy.requireApproval ?? []
-        ),
+            new AllowlistRule(policy.allowedTools),
 
-        new DestructiveKeywordRule(
-            policy.destructiveKeywords ?? []
-        )
+            new ApprovalRule(
+                policy.requireApproval ?? []
+            ),
 
-    ];
+            new DestructiveKeywordRule(
+                policy.destructiveKeywords ?? []
+            )
 
-    if (policy.blockPathTraversal !== false) {
-        this.rules.push(new PathTraversalRule());
+        ];
+
+        if (policy.blockPathTraversal !== false) {
+            this.rules.push(new PathTraversalRule());
+        }
+
+        if (policy.blockSSRF !== false) {
+            this.rules.push(new SSRFRule());
+        }
     }
-
-    if (policy.blockSSRF !== false) {
-        this.rules.push(new SSRFRule());
-    }
-}
 
     evaluate(invocation: ToolInvocation): ShieldVerdict {
+
+        let verdict: ShieldVerdict = {
+            allowed: true,
+            requiresApproval: false,
+            risk: "LOW"
+        };
 
         for (const rule of this.rules) {
 
             const result = rule.evaluate(invocation);
 
             if (result) {
-                return result;
+                verdict = result;
+                break;
             }
 
         }
 
-        return {
-            allowed: true,
-            requiresApproval: false,
-            risk: "LOW"
+        const event: AuditEvent = {
+            timestamp: new Date().toISOString(),
+            tool: invocation.tool,
+            allowed: verdict.allowed,
+            reason: verdict.reason,
+            risk: verdict.risk
         };
+
+        this.policy.auditLogger?.(event);
+
+        return verdict;
 
     }
 
