@@ -42,6 +42,8 @@ export class PolicyEngine {
         if (policy.blockSSRF !== false) {
             this.rules.push(new SSRFRule());
         }
+
+        Object.freeze(this.rules);
     }
 
     evaluate(invocation: ToolInvocation): ShieldVerdict {

@@ -18,6 +18,10 @@ All notable changes to this project will be documented in this file.
 - GitHub Actions continuous integration
 - Project documentation and contribution guidelines
 
+### Changed
+
+- Made the internal policy rule collection immutable after initialization.
+
 ## [Unreleased]
 
 ### Added
