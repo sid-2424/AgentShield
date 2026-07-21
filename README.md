@@ -117,8 +117,8 @@ Tool Execution
 ### v0.2
 
 - Secret detection
-- OpenAI Agents SDK integration
 - Anthropic Claude Code integration
+- OpenAI Agents SDK integration
 - LangChain integration
 - Model Context Protocol (MCP) support
 
